@@ -25,6 +25,7 @@ add_root_dictionary(O2QcZDC
   include/ZDC/ZDCRecDataPostProcessing.h
   include/ZDC/ZDCRawDataCheck.h
   include/ZDC/ZDCRawDataTask.h
+  include/ZDC/ZDCTH1ReductorPeak1n.h
                     LINKDEF include/ZDC/LinkDef.h)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ZDC

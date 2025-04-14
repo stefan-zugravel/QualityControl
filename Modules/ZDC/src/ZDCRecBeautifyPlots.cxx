@@ -76,7 +76,7 @@ void ZDCRecBeautifyPlots::beautify(std::shared_ptr<MonitorObject> mo, Quality ch
     h->GetListOfFunctions()->Add(lineV);
     h->GetListOfFunctions()->Add(marker);
   }
-  if (mo->getName() == "h_TDC_ZNA_TC_A_H" || "h_TDC_ZNA_SUM_A_H" || "h_TDC_ZNC_TC_A_H" || "h_TDC_ZNC_SUM_A_H") {
+  if (mo->getName() == "h_TDC_ZNA_TC_A_H" || mo->getName() == "h_TDC_ZNA_SUM_A_H" || mo->getName() == "h_TDC_ZNC_TC_A_H" || mo->getName() == "h_TDC_ZNC_SUM_A_H") {
     auto* h = dynamic_cast<TH1F*>(mo->getObject());
     if (h == nullptr) {
       ILOG(Error, Support) << "Could not cast `h_TDC_ZNA_TC_A_H` to TH1*, skipping" << ENDM;
@@ -144,13 +144,13 @@ void ZDCRecBeautifyPlots::beautify(std::shared_ptr<MonitorObject> mo, Quality ch
     sigma << "1n sigma     : " << fitFunc->GetParameter(4);
     std::ostringstream resolution;
     resolution << "1n resolution: " << (fitFunc->GetParameter(4) / fitFunc->GetParameter(3)) * 100 << " %";
-    TText *text1 = new TText(fitFunc->GetParameter(3) + 10, h->GetMaximum(), position.str().c_str());
+    TText *text1 = new TText(fitFunc->GetParameter(3) + 50, h->GetMaximum(), position.str().c_str());
     text1->SetTextColor(kBlack); // Set text color
     text1->SetTextSize(0.04);    // Set the text size
-    TText *text2 = new TText(fitFunc->GetParameter(3) + 10, h->GetMaximum()/2, sigma.str().c_str());
+    TText *text2 = new TText(fitFunc->GetParameter(3) + 50, h->GetMaximum()/2, sigma.str().c_str());
     text2->SetTextColor(kBlack); // Set text color
     text2->SetTextSize(0.04);    // Set the text size
-    TText *text3 = new TText(fitFunc->GetParameter(3) + 10, h->GetMaximum()/4, resolution.str().c_str());
+    TText *text3 = new TText(fitFunc->GetParameter(3) + 50, h->GetMaximum()/4, resolution.str().c_str());
     text3->SetTextColor(kBlack); // Set text color
     text3->SetTextSize(0.04);    // Set the text size
     h->GetListOfFunctions()->Add(text1);
@@ -158,6 +158,71 @@ void ZDCRecBeautifyPlots::beautify(std::shared_ptr<MonitorObject> mo, Quality ch
     h->GetListOfFunctions()->Add(text3);
     h->GetListOfFunctions()->Add(line);
     h->GetListOfFunctions()->Add(fitFunc);
+  }
+  if (mo->getName() == "h_TDC_ZPA_TC_A_H" || mo->getName() == "h_TDC_ZPA_SUM_A_H" || mo->getName() == "h_TDC_ZPC_TC_A_H" || mo->getName() == "h_TDC_ZPC_SUM_A_H") {
+    auto* h2 = dynamic_cast<TH1F*>(mo->getObject());
+    if (h2 == nullptr) {
+      ILOG(Error, Support) << "Could not cast `h_TDC_ZPA_TC_A_H` to TH1*, skipping" << ENDM;
+      return;
+    }
+    TF1 *fitFunc1p = new TF1("fitFunc", "[0]*exp(-x/[1]) + [2]*exp(-0.5*((x-[3])/[4])^2) + [5]*exp(-0.5*((x-[6])/[7])^2) + [8]*exp(-0.5*((x-[9])/[10])^2) ", 15, 250);
+    fitFunc1p->SetParName(0, "Exp_A");
+    fitFunc1p->SetParName(1, "Exp_tau");
+    fitFunc1p->SetParName(2, "G1_A");
+    fitFunc1p->SetParName(3, "G1_mean");
+    fitFunc1p->SetParName(4, "G1_sigma");
+    fitFunc1p->SetParName(5, "G2_A");
+    fitFunc1p->SetParName(6, "G2_mean");
+    fitFunc1p->SetParName(7, "G2_sigma");
+    fitFunc1p->SetParName(8, "G3_A");
+    fitFunc1p->SetParName(9, "G3_mean");
+    fitFunc1p->SetParName(10,"G3_sigma");
+    fitFunc1p->SetParameter(0, 0.5*h2->GetMaximum());          // Exp_A
+    fitFunc1p->SetParameter(1, 125);             // Exp_tau
+    fitFunc1p->SetParameter(2, 0.5*h2->GetMaximum());          // CB1_A
+    fitFunc1p->SetParameter(3, 17);              // CB1_mean
+    fitFunc1p->SetParameter(4, 6);               // CB1_sigma
+    fitFunc1p->SetParameter(5, 0.4*h2->GetMaximum());          // CB2_A
+    fitFunc1p->SetParameter(6, 73);              // CB2_mean
+    fitFunc1p->SetParameter(7, 10);              // CB2_sigma
+    fitFunc1p->SetParameter(8, 0.1*h2->GetMaximum());          // CB2_A
+    fitFunc1p->SetParameter(9, 140);              // CB2_mean
+    fitFunc1p->SetParameter(10,15);              // CB2_sigma
+    fitFunc1p->SetParLimits(0,  0.2*h2->GetMaximum(), 0.8*h2->GetMaximum());  // Exp_A
+    fitFunc1p->SetParLimits(1, 75, 175);       // Exp_tau
+    fitFunc1p->SetParLimits(2, 0.2*h2->GetMaximum(), 0.8*h2->GetMaximum()); // CB1_A
+    fitFunc1p->SetParLimits(3, 10, 30);          // CB1_mean
+    fitFunc1p->SetParLimits(4, 3, 9);         // CB1_sigma
+    fitFunc1p->SetParLimits(5, 0.1*h2->GetMaximum(), 0.7*h2->GetMaximum());  // CB2_A
+    fitFunc1p->SetParLimits(6, 50, 100);         // CB2_mean
+    fitFunc1p->SetParLimits(7, 5, 15);        // CB2_sigma
+    fitFunc1p->SetParLimits(8, 0.01*h2->GetMaximum(), 0.3*h2->GetMaximum());  // CB2_A
+    fitFunc1p->SetParLimits(9, 100, 150);         // CB2_mean
+    fitFunc1p->SetParLimits(10,10, 25);        // CB2_sigma  
+    h2->Fit(fitFunc1p, "R");
+    TLine *line2 = new TLine(fitFunc1p->GetParameter(6), h2->GetMinimum(), fitFunc1p->GetParameter(6), h2->GetMaximum());
+    line2->SetLineColor(kBlack); // Set line color to red
+    line2->SetLineWidth(3);    // Set line width
+    std::ostringstream position;
+    position << "1p position  : " << fitFunc1p->GetParameter(6);
+    std::ostringstream sigma;
+    sigma << "1p sigma     : " << fitFunc1p->GetParameter(7);
+    std::ostringstream resolution;
+    resolution << "1p resolution: " << (fitFunc1p->GetParameter(7) / fitFunc1p->GetParameter(6)) * 100 << " %";    
+    TText *text4 = new TText(fitFunc1p->GetParameter(6) + 150, h2->GetMaximum(), position.str().c_str());
+    text4->SetTextColor(kBlack); // Set text color
+    text4->SetTextSize(0.04);    // Set the text size
+    TText *text5 = new TText(fitFunc1p->GetParameter(6) + 150, h2->GetMaximum()/2, sigma.str().c_str());
+    text5->SetTextColor(kBlack); // Set text color
+    text5->SetTextSize(0.04);    // Set the text size
+    TText *text6 = new TText(fitFunc1p->GetParameter(6) + 150, h2->GetMaximum()/4, resolution.str().c_str());
+    text6->SetTextColor(kBlack); // Set text color
+    text6->SetTextSize(0.04);    // Set the text size
+    h2->GetListOfFunctions()->Add(text4);
+    h2->GetListOfFunctions()->Add(text5);
+    h2->GetListOfFunctions()->Add(text6);
+    h2->GetListOfFunctions()->Add(line2);
+    h2->GetListOfFunctions()->Add(fitFunc1p);
   }
 }
 
